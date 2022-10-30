@@ -5,9 +5,9 @@ ext {
     moduleRiruApiVersion = 25
     magiskModuleId = "riru-unshare"
 
-    moduleName = "Riru - Enhanced mode for Magisk Hide"
-    moduleAuthor = "vvb2060"
-    moduleDescription = "Enable Enhanced mode for Magisk Hide. Allow Magisk Hide to handle isolated processes."
-    moduleVersion = "v2.0"
-    moduleVersionCode = 2
+    moduleName = "Riru - Enhancement mode for Magisk Hide"
+    moduleAuthor = "HuskyDG"
+    moduleDescription = "Zygote fork event notify for MagiskHide. Only support latest Canary MagiskHide"
+    moduleVersion = "v3.0"
+    moduleVersionCode = 3
 }

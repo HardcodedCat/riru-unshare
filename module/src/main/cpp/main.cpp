@@ -1,17 +1,77 @@
 #include <jni.h>
 #include <sys/types.h>
 #include <riru.h>
+#include <unistd.h>
 #include <malloc.h>
+#include <string>
+#include <sys/system_properties.h>
+#include <sys/wait.h>
+#include <xhook.h>
+#include <sched.h>
 
 #include "logging.h"
 #include "nativehelper/scoped_utf_chars.h"
 #include "android_filesystem_config.h"
+
+#define HOOK(NAME, REPLACE) \
+RegisterHook(#NAME, reinterpret_cast<void*>(REPLACE), reinterpret_cast<void**>(&orig_##NAME))
+
+#define UNHOOK(NAME) \
+RegisterHook(#NAME, reinterpret_cast<void*>(orig_##NAME), nullptr)
+
+pid_t (*orig_fork)() = nullptr;
+
+bool RegisterHook(const char* name, void* replace, void** backup) {
+    int ret = xhook_register(".*\\libandroid_runtime.so$", name, replace, backup);
+    if (ret != 0) {
+        LOGE("Failed to hook %s", name);
+        return false;
+    }
+    return true;
+}
+
+static void do_unhook(){
+    xhook_enable_debug(1);
+    xhook_enable_sigsegv_protection(0);
+    bool unhook_fork = UNHOOK(fork);
+    if (!unhook_fork || xhook_refresh(0)) {
+        LOGE("Failed to clear hooks!");
+        return;
+    }
+    xhook_clear();
+}
 
 static int shouldSkipUid(int uid) {
     int appid = uid % AID_USER_OFFSET;
     if (appid >= AID_APP_START && appid <= AID_APP_END) return false;
     if (appid >= AID_ISOLATED_START && appid <= AID_ISOLATED_END) return false;
     return true;
+}
+
+int fork_dont_care() {
+    if (int pid = fork()) {
+        waitpid(pid, nullptr, 0);
+        return pid;
+    } else if (fork()) {
+        exit(0);
+    }
+    return 0;
+}
+
+static void trigger_magiskhide(int xpid){
+    char s[1024];
+    char buf[1024];
+    __system_property_get("sys.boot_completed", s);
+
+    if (strcmp(s, "1")!=0) return;
+    char intStr[15];
+    sprintf(intStr, "%d", xpid);
+    int fork_pid = fork_dont_care();
+    if (fork_pid == 0) {
+        char *cmd[]= { "magisk", "resetprop", "magisk.hide.pid", intStr, nullptr };
+        execvp(*cmd,cmd);
+        _exit(0);
+    }
 }
 
 static void doUnshare(JNIEnv *env, jint *uid, jint *mountExternal, jstring *niceName) {
@@ -34,6 +94,7 @@ static void forkAndSpecializePre(
 
 static void forkAndSpecializePost(JNIEnv *env, jclass clazz, jint res) {
     if (res == 0) {
+    	do_unhook();
         riru_set_unload_allowed(true);
     }
 }
@@ -48,8 +109,37 @@ static void specializeAppProcessPre(
 }
 
 static void specializeAppProcessPost(JNIEnv *env, jclass clazz) {
+	do_unhook();
     riru_set_unload_allowed(true);
 }
+
+pid_t new_fork() {
+    pid_t pid = orig_fork();
+    if (pid > 0) {
+        LOGD("Zygote fork PID=[%d], UID=[%d]\n", pid, getuid());
+        // report event to MagiskHide
+        trigger_magiskhide(pid);
+    }
+    return pid;
+}
+
+static void onModuleLoaded() {
+    // Called when this library is loaded and "hidden" by Riru (see Riru's hide.cpp)
+
+    // If you want to use threads, start them here rather than the constructors
+    // __attribute__((constructor)) or constructors of static variables,
+    // or the "hide" will cause SIGSEGV
+    xhook_enable_debug(1);
+    xhook_enable_sigsegv_protection(0);
+    bool hook_fork = HOOK(fork, new_fork);
+    if (!hook_fork || xhook_refresh(0)) {
+        LOGE("Failed to register hooks!");
+        return;
+    }
+    LOGI("Replace fork()");
+    xhook_clear();
+}
+
 
 extern "C" {
 
@@ -63,7 +153,7 @@ static auto module = RiruVersionedModuleInfo{
                 .supportHide = true,
                 .version = RIRU_MODULE_VERSION,
                 .versionName = RIRU_MODULE_VERSION_NAME,
-                .onModuleLoaded = nullptr,
+                .onModuleLoaded = onModuleLoaded,
                 .forkAndSpecializePre = forkAndSpecializePre,
                 .forkAndSpecializePost = forkAndSpecializePost,
                 .forkSystemServerPre = nullptr,

@@ -33,6 +33,7 @@ android {
 dependencies {
     implementation 'dev.rikka.ndk:riru:25.0.0'
     implementation 'dev.rikka.ndk.thirdparty:nativehelper:1.0.1'
+    implementation 'dev.rikka.ndk.thirdparty:xhook:1.2.0'
 }
 
 def magiskDir = file("$outDir/magisk_module")

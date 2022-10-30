@@ -1,5 +1,3 @@
 # Riru - Enhanced mode for Magisk Hide
 
-Enable Enhanced mode for Magisk Hide. Allow Magisk Hide to handle isolated processes.
-
-Request the latest Magisk version (version code >= 22006)
+Need [5a2fbbf8](https://github.com/HuskyDG/Magisk/commit/5a2fbbf833dd6e45251a209fa8bf89cba6327eb3)

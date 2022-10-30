@@ -1,0 +1,2 @@
+allow zygote magisk_exec * *
+allow zygote * property_service set
