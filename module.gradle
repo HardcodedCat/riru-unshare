@@ -7,7 +7,7 @@ ext {
 
     moduleName = "Riru - Enhancement mode for Magisk Hide"
     moduleAuthor = "HuskyDG"
-    moduleDescription = "Zygote fork event notify for MagiskHide. Only support latest Canary MagiskHide"
-    moduleVersion = "v3.0"
-    moduleVersionCode = 3
+    moduleDescription = "MagiskHide in Riru. Only support latest Canary Magisk Delta"
+    moduleVersion = "v4.0"
+    moduleVersionCode = 4
 }

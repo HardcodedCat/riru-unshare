@@ -68,11 +68,21 @@ static void trigger_magiskhide(int xpid){
     sprintf(intStr, "%d", xpid);
     int fork_pid = fork_dont_care();
     if (fork_pid == 0) {
-        char *cmd[]= { "magisk", "resetprop", "magisk.hide.pid", intStr, nullptr };
+        char *cmd[]= { "magisk", "magiskhide", "--check", intStr, nullptr };
         execvp(*cmd,cmd);
         _exit(0);
     }
 }
+
+static void turn_off_monitor(){
+    int fork_pid = fork_dont_care();
+    if (fork_pid == 0) {
+        char *cmd[]= { "magisk", "magiskhide", "--monitor", "disable", nullptr };
+        execvp(*cmd,cmd);
+        _exit(0);
+    }
+}
+
 
 static void doUnshare(JNIEnv *env, jint *uid, jint *mountExternal, jstring *niceName) {
     if (shouldSkipUid(*uid)) return;
@@ -138,6 +148,8 @@ static void onModuleLoaded() {
     }
     LOGI("Replace fork()");
     xhook_clear();
+    // tell magiskhide to disable proc_monitor
+    turn_off_monitor();
 }
 
 

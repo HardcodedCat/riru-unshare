@@ -30,7 +30,7 @@ extract "$ZIPFILE" 'riru.sh' "$TMPDIR"
 check_riru_version
 enforce_install_from_magisk_app
 
-if ! magisk --hide --event; then
+if [ "$(magisk --hide version)" != "MAGISKHIDE:1" ]; then
     abort "! Magisk current version is not support!"
 fi
 
