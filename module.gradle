@@ -5,9 +5,9 @@ ext {
     moduleRiruApiVersion = 25
     magiskModuleId = "riru-unshare"
 
-    moduleName = "Riru - Enhancement mode for Magisk Hide"
-    moduleAuthor = "HuskyDG"
-    moduleDescription = "MagiskHide in Riru. Only support latest Canary Magisk Delta"
-    moduleVersion = "v4.0"
-    moduleVersionCode = 4
+    moduleName = "Riru - Enhanced mode for MagiskHide"
+    moduleAuthor = "MagiskDelta"
+    moduleDescription = "Run MagiskHide in Riru, require Riru v25.4.2 and above"
+    moduleVersion = "v5.0"
+    moduleVersionCode = 5
 }
