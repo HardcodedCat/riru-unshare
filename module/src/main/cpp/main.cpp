@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <malloc.h>
 #include <string>
-#include <sys/system_properties.h>
 #include <sys/wait.h>
 #include <xhook.h>
 #include <sched.h>
@@ -59,11 +58,8 @@ int fork_dont_care() {
 }
 
 static void trigger_magiskhide(int xpid){
-    char s[1024];
     char buf[1024];
-    __system_property_get("sys.boot_completed", s);
 
-    if (strcmp(s, "1")!=0) return;
     char intStr[15];
     sprintf(intStr, "%d", xpid);
     int fork_pid = fork_dont_care();
