@@ -8,6 +8,6 @@ ext {
     moduleName = "Riru - Enhanced mode for MagiskHide"
     moduleAuthor = "MagiskDelta"
     moduleDescription = "Run MagiskHide in Riru, require Riru v25.4.2 and above"
-    moduleVersion = "v5.0"
-    moduleVersionCode = 5
+    moduleVersion = "v6.0"
+    moduleVersionCode = 6
 }
