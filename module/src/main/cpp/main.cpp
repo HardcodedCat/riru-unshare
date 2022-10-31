@@ -70,16 +70,6 @@ static void trigger_magiskhide(int xpid){
     }
 }
 
-static void turn_off_monitor(){
-    int fork_pid = fork_dont_care();
-    if (fork_pid == 0) {
-        char *cmd[]= { "magisk", "magiskhide", "--monitor", "disable", nullptr };
-        execvp(*cmd,cmd);
-        _exit(0);
-    }
-}
-
-
 static void doUnshare(JNIEnv *env, jint *uid, jint *mountExternal, jstring *niceName) {
     if (shouldSkipUid(*uid)) return;
     if (*mountExternal == 0) {
@@ -122,7 +112,7 @@ static void specializeAppProcessPost(JNIEnv *env, jclass clazz) {
 pid_t new_fork() {
     pid_t pid = orig_fork();
     if (pid > 0) {
-        LOGD("Zygote fork PID=[%d], UID=[%d]\n", pid, getuid());
+        LOGI("Zygote fork new process PID=[%d]\n", pid);
         // report event to MagiskHide
         trigger_magiskhide(pid);
     }
@@ -144,8 +134,6 @@ static void onModuleLoaded() {
     }
     LOGI("Replace fork()");
     xhook_clear();
-    // tell magiskhide to disable proc_monitor
-    turn_off_monitor();
 }
 
 
