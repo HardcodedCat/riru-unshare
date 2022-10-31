@@ -30,7 +30,8 @@ bool RegisterHook(const char* name, void* replace, void** backup) {
 }
 
 static void do_unhook(){
-    xhook_enable_debug(1);
+    // Suppress log in app process
+    xhook_enable_debug(0);
     xhook_enable_sigsegv_protection(0);
     bool unhook_fork = UNHOOK(fork);
     if (!unhook_fork || xhook_refresh(0)) {
