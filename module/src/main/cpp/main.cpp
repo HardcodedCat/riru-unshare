@@ -37,6 +37,7 @@ static void do_unhook(){
         LOGE("Failed to clear hooks!");
         return;
     }
+    LOGD("unhook fork()");
     xhook_clear();
 }
 
@@ -112,7 +113,7 @@ static void specializeAppProcessPost(JNIEnv *env, jclass clazz) {
 pid_t new_fork() {
     pid_t pid = orig_fork();
     if (pid > 0) {
-        LOGI("Zygote fork new process PID=[%d]\n", pid);
+        LOGD("Zygote fork new process PID=[%d]\n", pid);
         // report event to MagiskHide
         trigger_magiskhide(pid);
     }
@@ -132,7 +133,7 @@ static void onModuleLoaded() {
         LOGE("Failed to register hooks!");
         return;
     }
-    LOGI("Replace fork()");
+    LOGD("Replace fork()");
     xhook_clear();
 }
 
