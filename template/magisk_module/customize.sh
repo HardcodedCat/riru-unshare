@@ -30,10 +30,6 @@ extract "$ZIPFILE" 'riru.sh' "$TMPDIR"
 check_riru_version
 enforce_install_from_magisk_app
 
-if [ "$(magisk --hide version)" != "MAGISKHIDE:1" ]; then
-    abort "! Magisk current version is not support!"
-fi
-
 # Check architecture
 if [ "$ARCH" != "arm" ] && [ "$ARCH" != "arm64" ] && [ "$ARCH" != "x86" ] && [ "$ARCH" != "x64" ]; then
   abort "! Unsupported platform: $ARCH"
@@ -45,6 +41,7 @@ fi
 ui_print "- Extracting module files"
 
 extract "$ZIPFILE" 'module.prop' "$MODPATH"
+extract "$ZIPFILE" 'post-fs-data.sh' "$MODPATH"
 extract "$ZIPFILE" 'service.sh' "$MODPATH"
 extract "$ZIPFILE" 'sepolicy.rule' "$MODPATH"
 # extract "$ZIPFILE" 'uninstall.sh' "$MODPATH"
